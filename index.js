@@ -113,16 +113,7 @@ var addtoq=function(url)
 app.get('/download',function(req,res){
 
 
-    res.render('index',{
-
-        head:"Hello World !",
-        body:{
-            main_para_head:"Hello There !",
-            main_para:"This is an empty NodeJS and ExpressJS app with Handlebars . You can use it to quickly start building apps on top of it ."
-            
-        }
-
-    })
+    res.render('index')
 
 
 })
