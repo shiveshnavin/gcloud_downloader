@@ -1,5 +1,5 @@
 {
-  "name": "gcloud_downloader",
+  "name": "nodejs_starter",
   "version": "1.0.0",
   "description": "Empty NodeJS app with Handlerbars and Http",
   "main": "index.js",
@@ -21,14 +21,9 @@
   },
   "homepage": "https://github.com/shiveshnavin/gcloud_downloader#readme",
   "dependencies": {
-    "array": "^0.4.3",
     "express": "^4.16.3",
     "express-handlebars": "^3.0.0",
     "file": "^0.2.2",
-    "filedownloader": "^1.2.7",
-    "firebase": "^5.2.0",
-    "firebase-admin": "^5.12.1",
-    "fs": "0.0.1-security",
     "path": "^0.12.7"
   }
 }
