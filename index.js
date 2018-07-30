@@ -33,7 +33,17 @@ app.get('/',function(req,res){
 
 })
 
+app.use(function(req, res, next) {
+    let str = req.get('User-Agent');
+    if(str.indexOf("bot") > -1 || str.indexOf("Bot") > -1 || str.indexOf("BOT") > -1) {
 
+        res.writeHead(403)
+        res.end();
+        return;
+    }
+
+    next();
+  });
 
 var getFormattedTime=function() {
     var today = new Date();
