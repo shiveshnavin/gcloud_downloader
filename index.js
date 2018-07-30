@@ -1,11 +1,9 @@
 var express=require('express')
 var app=express()
-var hbs=require('express-handlebars')
+var hbs=require('express-handlebars') 
 var path=require('path')
 var Downloader = require("filedownloader");
 var fs = require("fs");
-var firebase = require("firebase"); 
-var admin = require('firebase-admin');
 var array = require('array');
 
 app.engine('hbs',hbs({
@@ -49,7 +47,6 @@ var getFormattedTime=function() {
 
 
 
-var data = fs.readFileSync('./public/downloads.json');
 var downloads={
 
     files:{},
@@ -80,81 +77,89 @@ var downloads={
     delete:function(id)
     {
        
-        //delete downloads.files[id].status;
-        downloads.files[id]={}
+        
+        delete downloads.files[id]
         console.log('deleted '+id)
         downloads.save();
+       
+
     }
 
 
 
 };
 
+try{
+    var data = fs.readFileSync('./public/downloads.json');
+    }catch(error){
+        console.log("Missing downloads.json . Creating :-)");
+        downloads.files={};
+         fs.writeFileSync('./public/downloads.json',JSON.stringify(downloads));
+    
+    }
+
+
 try {
     
-    
     downloads.files=JSON.parse(data).files;
-
-
-  }
+}
   catch(error) {
   
-    console.log(error);
+    console.log("Corrupt downloads.json . Creating New :-)");
+
+   // console.log(error);
+   downloads={}
     downloads.files={};
     fs.copyFileSync('./public/downloads.json','./public/downloads_'+getFormattedTime()+'.json')
     fs.writeFileSync('./public/downloads.json',JSON.stringify(downloads));
 
 }
-  
-
    
-
- 
 fs.writeFileSync('./public/downloads.json',JSON.stringify(downloads));
-
- 
-  
-var serviceAccount = JSON.parse(fs.readFileSync('test-a0930-339963a3d1ac.json'));
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: 'https://test-a0930.firebaseio.com/',
-  storageBucket: 'gs://test-a0930.appspot.com'
-});
-  
- 
-  var storage = admin.storage().bucket();
 
 
 var addtoq=function(url)
 {
-    var filename = url.split('/').pop().split('#')[0].split('?')[0];
+    let filename = url.split('/').pop().split('#')[0].split('?')[0];
     filename = filename.replace(/[^A-Z0-9]+/ig, ".");
     let id=getFormattedTime()+'_'+filename;
 
 
     downloads.add(id,url);
-    var Dl = new Downloader({
+    let Dl = new Downloader({
         url: url,
         saveas:id,
         saveto:"downloads"
     }).on("progress", function (progress){
 
 
-        downloads.update(id,progress);
-        if(progress.progress==100)
-        {
-            console.log("Download COmpete "+id);
-        }
+            try{
+            downloads.update(id,progress);
+            if(progress.progress==100)
+            {
+                console.log("Download Progress 100% "+id);
+            }
+            }catch(err)
+            {
+                console.log("Pausing Download ",id)
+                Dl.pause()
+                delete Dl
+            }
 
 
     });
+    Dl.on("end", function(){
+        
+        console.log('Download finished : Filename ',id);
+         
+     });
 
+   
+ 
     
 };
 
-
-
+ 
 app.get('/download',function(req,res){
 
 
@@ -203,7 +208,6 @@ app.get('/download',function(req,res){
     }
 
 
-
     files.sort(function(a,b){
         return new Date(b.date) - new Date(a.date);
       });
@@ -225,11 +229,7 @@ app.get('/download',function(req,res){
 
 
 })
-
-
-
-
-
+ 
 
 app.listen('8080',function(){
     console.log('Server Started');

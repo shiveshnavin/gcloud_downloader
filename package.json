@@ -26,9 +26,8 @@
     "express-handlebars": "^3.0.0",
     "file": "^0.2.2",
     "filedownloader": "^1.2.7",
-    "firebase": "^5.2.0",
-    "firebase-admin": "^5.12.1",
     "fs": "0.0.1-security",
+    "googleapis": "^27.0.0",
     "path": "^0.12.7"
   }
 }
