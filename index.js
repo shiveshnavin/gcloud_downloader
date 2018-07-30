@@ -14,32 +14,18 @@ var mDrive=undefined
 var DOWNLOADS_DIR="downloads"
 
 app.set('view engine','hbs')
-app.use(express.static(path.join(__dirname,'public')))
-
-app.get('/',function(req,res){
-
-
-    res.render('index',{
-
-        head:"Hello World !",
-        body:{
-            main_para_head:"Hello There !",
-            main_para:"This is an empty NodeJS and ExpressJS app with Handlebars . You can use it to quickly start building apps on top of it ."
-            
-        }
-
-    })
-
-
-})
-
+app.use(express.static(path.join(__dirname,'public'))) 
 app.use(function(req, res, next) {
+    try{
     let str = req.get('User-Agent');
     if(str.indexOf("bot") > -1 || str.indexOf("Bot") > -1 || str.indexOf("BOT") > -1) {
 
         res.writeHead(403)
         res.end();
         return;
+    }}catch(er)
+    {
+
     }
 
     next();
@@ -189,15 +175,8 @@ var addtoq=function(url)
     
 };
 
-
-app.all('/',function(req,response){
-    response.writeHead(302, {
-        'Location': '/download'
-        //add other headers here...
-      });
-      response.end();
-})
-app.get('/download',function(req,res){
+function start(req,res,loc)
+{
 
 
 
@@ -209,7 +188,7 @@ app.get('/download',function(req,res){
     {
         addtoq(url);
          response.writeHead(302, {
-            'Location': 'download' 
+            'Location': loc
           });
           response.end();
           return;
@@ -218,7 +197,7 @@ app.get('/download',function(req,res){
 
         downloads.delete(del);
         response.writeHead(302, {
-            'Location': 'download' 
+            'Location': loc
           });
           response.end();
           return;
@@ -264,9 +243,24 @@ app.get('/download',function(req,res){
         "files":files
     })
 
+}
+app.all('/',function(req,res){
+   
+    
+    start(req,res,'/')
+
 
 })
  
+app.get('/download',function(req,res){
+
+
+    start(req,res,'download')
+
+})
+ 
+ 
+//
 
 app.listen('8080',function(){
     console.log('Server Started');
