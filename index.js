@@ -81,7 +81,11 @@ var downloads={
         delete downloads.files[id]
         console.log('deleted '+id)
         downloads.save();
-       
+            
+        fs.unlink(id,function(err){
+            if(err) return console.log(err);
+            console.log('file deleted successfully');
+        }); 
 
     }
 
