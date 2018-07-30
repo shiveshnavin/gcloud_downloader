@@ -10,7 +10,7 @@ app.engine('hbs',hbs({
     extname:"hbs"
 }))
 
-
+var DOWNLOADS_DIR="downloads"
 
 app.set('view engine','hbs')
 app.use(express.static(path.join(__dirname,'public')))
@@ -82,7 +82,7 @@ var downloads={
         console.log('deleted '+id)
         downloads.save();
             
-        fs.unlink(id,function(err){
+        fs.unlink('./'+DOWNLOADS_DIR+'/'+id,function(err){
             if(err) return console.log(err);
             console.log('file deleted successfully');
         }); 
@@ -133,7 +133,7 @@ var addtoq=function(url)
     let Dl = new Downloader({
         url: url,
         saveas:id,
-        saveto:"downloads"
+        saveto:DOWNLOADS_DIR
     }).on("progress", function (progress){
 
 
