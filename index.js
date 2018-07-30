@@ -9,7 +9,8 @@ var array = require('array');
 app.engine('hbs',hbs({
     extname:"hbs"
 }))
-
+var mAuth=undefined
+var mDrive=undefined
 var DOWNLOADS_DIR="downloads"
 
 app.set('view engine','hbs')
@@ -67,10 +68,24 @@ var downloads={
         console.log("Saved");
         fs.writeFileSync('./public/downloads.json',JSON.stringify(downloads));
     },
+    update_durl:function(id,durl)
+    {
+       
+        downloads.files[id].durl=durl;
+        console.log(downloads.files[id].durl)
+        downloads.save();
+    },
     update:function(id,status)
     {
        
         downloads.files[id].status=""+status.progress+"% @ "+status.speed+"";
+        console.log(downloads.files[id].status)
+        downloads.save();
+    },
+    update_status:function(id,status)
+    {
+       
+        downloads.files[id].status=status;
         console.log(downloads.files[id].status)
         downloads.save();
     },
@@ -154,7 +169,8 @@ var addtoq=function(url)
     });
     Dl.on("end", function(){
         
-        console.log('Download finished : Filename ',id);
+        console.log('Uploading file to drive now  : ',id);
+        uploadFile(id,id,'./'+DOWNLOADS_DIR+'/'+id)
          
      });
 
@@ -240,3 +256,118 @@ app.listen('8080',function(){
 })
 
 
+
+ 
+const readline = require('readline');
+const {google} = require('googleapis');
+
+// If modifying these scopes, delete credentials.json.
+const SCOPES = ['https://www.googleapis.com/auth/drive'];
+const TOKEN_PATH = 'token.json';
+
+// Load client secrets from a local file.
+fs.readFile('credentials.json', (err, content) => {
+  if (err) return console.log('Error loading client secret file:', err);
+  // Authorize a client with credentials, then call the Google Drive API.
+  authorize(JSON.parse(content), setAuth);
+});
+
+/**
+ * Create an OAuth2 client with the given credentials, and then execute the
+ * given callback function.
+ * @param {Object} credentials The authorization client credentials.
+ * @param {function} callback The callback to call with the authorized client.
+ */
+function authorize(credentials, callback) {
+  const {client_secret, client_id, redirect_uris} = credentials.installed;
+  const oAuth2Client = new google.auth.OAuth2(
+      client_id, client_secret, redirect_uris[0]);
+
+  // Check if we have previously stored a token.
+  fs.readFile(TOKEN_PATH, (err, token) => {
+    if (err) return getAccessToken(oAuth2Client, callback);
+    oAuth2Client.setCredentials(JSON.parse(token));
+    callback(oAuth2Client);
+  });
+}
+
+/**
+ * Get and store new token after prompting for user authorization, and then
+ * execute the given callback with the authorized OAuth2 client.
+ * @param {google.auth.OAuth2} oAuth2Client The OAuth2 client to get token for.
+ * @param {getEventsCallback} callback The callback for the authorized client.
+ */
+function getAccessToken(oAuth2Client, callback) {
+  const authUrl = oAuth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: SCOPES,
+  });
+  console.log('Authorize this app by visiting this url:', authUrl);
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  rl.question('Enter the code from that page here: ', (code) => {
+    rl.close();
+    oAuth2Client.getToken(code, (err, token) => {
+      if (err) return callback(err);
+      oAuth2Client.setCredentials(token);
+      // Store the token to disk for later program executions
+      fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
+        if (err) console.error(err);
+        console.log('Token stored to', TOKEN_PATH);
+      });
+      callback(oAuth2Client);
+    });
+  });
+}
+
+/**
+ * Lists the names and IDs of up to 10 files.
+ * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
+ */
+function setAuth(auth) {
+  mAuth=auth
+  const drive = google.drive({version: 'v3', auth});
+  mDrive=drive
+  
+  console.log("!!!!! Google Drive Connected !!!!!")
+
+
+}
+
+
+function uploadFile(file_id,name,path)
+{
+
+    if(mDrive==undefined)
+    {
+        console.log("Drive is not connected yet !!")
+        return
+    }
+
+    downloads.update_status(file_id,"Uploading...")
+    let drive=mDrive;
+    var fileMetadata = {
+        'name': name
+      };
+      var media = {
+        mimeType: '*/*',
+        body: fs.createReadStream(path)
+      };
+      drive.files.create({
+         resource: fileMetadata,
+         media: media,
+         fields: 'id'
+      }, function(err, file) {
+        if(err) {
+          // Handle error
+          console.log(err);
+        } else {
+          console.log('File Id: ',  (file.data.id));
+          downloads.update_durl(file_id,'https://drive.google.com/file/d/'+file.data.id+'/view')
+          downloads.update_status(file_id,"On Gdrive")
+
+        }
+      });
+}
