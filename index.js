@@ -189,7 +189,14 @@ var addtoq=function(url)
     
 };
 
- 
+
+app.all('/',function(req,response){
+    response.writeHead(302, {
+        'Location': '/download'
+        //add other headers here...
+      });
+      response.end();
+})
 app.get('/download',function(req,res){
 
 
