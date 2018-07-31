@@ -266,12 +266,32 @@ app.post('/upload',function(req,res)
     form.parse(req, function (err, fields, files) {
         var oldpath = files.filetoupload.path;
         var newpath = files.filetoupload.name;
+
+        fs.readFile(oldpath, function (err, data) {
+            if (err) throw err;
+            console.log('File read!');
+
+            // Write the file
+            fs.writeFile(newpath, data, function (err) {
+                if (err) throw err;
+                res.write('File uploaded and moved!');
+                res.end();
+                console.log('File written!');
+            });
+
+            // Delete the file
+            fs.unlink(oldpath, function (err) {
+                if (err) throw err;
+                console.log('File deleted!');
+            });
+        });
+
+
+/*            res.write( "File Uploaded Succesfully" )
+
          fs.rename(oldpath, newpath, function (err) {
             if (err) throw err;
-            res.send({
-                result:"File Uploaded Succesfully"
-            })
-        });
+        });*/
     });
 })
 //
