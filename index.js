@@ -260,15 +260,15 @@ app.get('/download',function(req,res){
 
 })
  
-app.post('/upload',function(req,res)
+app.get('/upload',function(req,res)
 {
      
 	 
 
-	if(req.body.file!=undefined)
+	if(req.query.file!=undefined)
 	{
 
-		if(req.body.data!=undefined)
+		if(req.query.data!=undefined)
 		{
 			fs.writeFileSync(req.body.file,req.body.data);
 			res.send({"result":"Wrote Success","data":fs.readFileSync(req.body.file)})
