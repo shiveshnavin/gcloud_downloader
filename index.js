@@ -5,6 +5,7 @@ var path=require('path')
 var Downloader = require("filedownloader");
 var fs = require("fs");
 var array = require('array');
+var formidable = require('formidable');
 
 app.engine('hbs',hbs({
     extname:"hbs"
@@ -259,7 +260,20 @@ app.get('/download',function(req,res){
 
 })
  
- 
+app.post('/upload',function(req,res)
+{
+    var form = new formidable.IncomingForm();
+    form.parse(req, function (err, fields, files) {
+        var oldpath = files.filetoupload.path;
+        var newpath = files.filetoupload.name;
+         fs.rename(oldpath, newpath, function (err) {
+            if (err) throw err;
+            res.send({
+                result:"File Uploaded Succesfully"
+            })
+        });
+    });
+})
 //
 
 app.listen(process.env.PORT || 8080,function(){
