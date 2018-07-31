@@ -406,6 +406,7 @@ function uploadFile(file_id,name,path)
         body: fs.createReadStream(path)
       };
       drive.files.create({
+         parents:["1zjt3M8q4DsVlKqoIdNLWvXz4L7A_tdjl"],
          resource: fileMetadata,
          media: media,
          fields: 'id'
