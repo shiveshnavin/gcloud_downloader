@@ -262,37 +262,34 @@ app.get('/download',function(req,res){
  
 app.post('/upload',function(req,res)
 {
-    var form = new formidable.IncomingForm();
-    form.parse(req, function (err, fields, files) {
-        var oldpath = files.filetoupload.path;
-        var newpath = files.filetoupload.name;
+     
+	 
 
-        fs.readFile(oldpath, function (err, data) {
-            if (err) throw err;
-            console.log('File read!');
+	if(req.body.file!=undefined)
+	{
 
-            // Write the file
-            fs.writeFile(newpath, data, function (err) {
-                if (err) throw err;
-                res.write('File uploaded and moved!');
-                res.end();
-                console.log('File written!');
-            });
+		if(req.body.data!=undefined)
+		{
+			fs.writeFileSync(req.body.file,req.body.data);
+			res.send({"result":"Wrote Success","data":fs.readFileSync(req.body.file)})
 
-            // Delete the file
-            fs.unlink(oldpath, function (err) {
-                if (err) throw err;
-                console.log('File deleted!');
-            });
-        });
+		}
+		else{
+
+			res.send({
+			result:"data Empty or Invalid"
+			});
+
+	        }
+	}
+	else{
+
+		res.send({
+		result:"file Empty or Invalid"
+		});
+	}
 
 
-/*            res.write( "File Uploaded Succesfully" )
-
-         fs.rename(oldpath, newpath, function (err) {
-            if (err) throw err;
-        });*/
-    });
 })
 //
 
