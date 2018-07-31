@@ -31,7 +31,7 @@ app.use(function(req, res, next) {
 
     next();
   });
-
+var DRIVE_FOLDER_ID="1zjt3M8q4DsVlKqoIdNLWvXz4L7A_tdjl"
 var getFormattedTime=function() {
     var today = new Date();
     var y = today.getFullYear();
@@ -396,6 +396,7 @@ function uploadFile(file_id,name,path)
     downloads.update_status(file_id,"Uploading...")
     let drive=mDrive;
     var fileMetadata = {
+        'parents':[DRIVE_FOLDER_ID],
         'name': name
       };
       var media = {
@@ -403,7 +404,6 @@ function uploadFile(file_id,name,path)
         body: fs.createReadStream(path)
       };
       drive.files.create({
-         parents:["1zjt3M8q4DsVlKqoIdNLWvXz4L7A_tdjl"],
          resource: fileMetadata,
          media: media,
          fields: 'id'
