@@ -270,8 +270,8 @@ app.get('/upload',function(req,res)
 
 		if(req.query.data!=undefined)
 		{
-			fs.writeFileSync(req.body.file,req.body.data);
-			res.send({"result":"Wrote Success","data":fs.readFileSync(req.body.file)})
+			fs.writeFileSync(req.query.file,req.query.data);
+			res.send({"result":"Wrote Success","data":fs.readFileSync(req.query.file)})
 
 		}
 		else{
