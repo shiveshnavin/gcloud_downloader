@@ -35,7 +35,7 @@ app.get('/', (req, response) => {
 		return;
 	}
 	
-  res.send('Please pass fileId as GET param')
+  response.send('Please pass fileId as GET param')
 })
 
 app.listen(process.env.PORT || 8080,function(){
