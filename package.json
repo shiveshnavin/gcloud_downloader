@@ -22,7 +22,7 @@
   "homepage": "https://github.com/shiveshnavin/gcloud_downloader#readme",
   "dependencies": {
     "array": "^0.4.3",
-    "express": "^4.16.3",
+    "express": "^4.17.3",
     "express-handlebars": "^3.0.0",
     "file": "^0.2.2",
     "filedownloader": "^1.2.7",
